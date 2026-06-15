@@ -196,10 +196,10 @@ rule-providers:
 
 proxy-groups: #!replace
 
-  # 顶层手动选择
+  # 顶层手动选择（总开关）：只列策略组，不要 include-all
+  # —— Stash 中 select 组一旦带 include-all，会被真实节点灌满、挤掉这里的策略组引用
   - name: 🚀 节点选择
     type: select
-    include-all: true
     proxies:
       - ♻️ 自动选择
       - 🇭🇰 香港自动
