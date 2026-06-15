@@ -1,0 +1,399 @@
+# =============================================================================
+# Stash 覆写配置（Override / .stoverride）
+# 与 clash-verge/config.yaml 分流逻辑一致，已按 Stash 内核语法适配
+# 多机场通用：换机场只换订阅，本覆写不动
+#
+# 适配要点（相对 Clash Verge / Mihomo）：
+#   1. include-all-providers + include-all-proxies  →  include-all: true
+#   2. proxy-groups / rules 顶层加 #!replace，完整替换订阅自带分组与规则
+#      （Stash 覆写默认是「前置插入」而非替换，必须加此标记）
+#   3. 删除 profile（Stash 在 App 设置中管理，默认已记住手动选择）
+#   4. rule-providers / RULE-SET / GEOIP / MATCH 与 Mihomo 兼容，原样保留
+# =============================================================================
+
+name: 节点分组与智能分流
+desc: 地区分组 + AI(ChatGPT/Claude/Gemini)/流媒体/Telegram 分流，规则每日更新
+
+# ── 规则集 ───────────────────────────────────────────────────────────────────
+
+rule-providers:
+
+  # --- AI 服务（blackmatrix7，Clash YAML 格式）---
+
+  openai:
+    type: http
+    behavior: classical
+    format: yaml
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/OpenAI/OpenAI.yaml"
+    path: ./rules/openai.yaml
+    interval: 86400
+
+  anthropic:
+    type: http
+    behavior: classical
+    format: yaml
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Anthropic/Anthropic.yaml"
+    path: ./rules/anthropic.yaml
+    interval: 86400
+
+  claude:
+    type: http
+    behavior: classical
+    format: yaml
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Claude/Claude.yaml"
+    path: ./rules/claude.yaml
+    interval: 86400
+
+  gemini:
+    type: http
+    behavior: classical
+    format: yaml
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Gemini/Gemini.yaml"
+    path: ./rules/gemini.yaml
+    interval: 86400
+
+  copilot:
+    type: http
+    behavior: classical
+    format: yaml
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Copilot/Copilot.yaml"
+    path: ./rules/copilot.yaml
+    interval: 86400
+
+  perplexity:
+    type: http
+    behavior: classical
+    format: yaml
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Perplexity/Perplexity.yaml"
+    path: ./rules/perplexity.yaml
+    interval: 86400
+
+  github_rules:
+    type: http
+    behavior: classical
+    format: yaml
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/GitHub/GitHub.yaml"
+    path: ./rules/github.yaml
+    interval: 86400
+
+  # --- 基础分流（ACL4SSR，text 格式）---
+
+  local_network:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/LocalAreaNetwork.list"
+    path: ./rules/local_network.list
+    interval: 86400
+
+  ban_ad:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/BanAD.list"
+    path: ./rules/ban_ad.list
+    interval: 86400
+
+  ban_program_ad:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/BanProgramAD.list"
+    path: ./rules/ban_program_ad.list
+    interval: 86400
+
+  google_cn:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/GoogleCN.list"
+    path: ./rules/google_cn.list
+    interval: 86400
+
+  microsoft:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Microsoft.list"
+    path: ./rules/microsoft.list
+    interval: 86400
+
+  apple:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Apple.list"
+    path: ./rules/apple.list
+    interval: 86400
+
+  telegram:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Telegram.list"
+    path: ./rules/telegram.list
+    interval: 86400
+
+  youtube:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Ruleset/YouTube.list"
+    path: ./rules/youtube.list
+    interval: 86400
+
+  netflix:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Ruleset/Netflix.list"
+    path: ./rules/netflix.list
+    interval: 86400
+
+  bilibili:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Ruleset/Bilibili.list"
+    path: ./rules/bilibili.list
+    interval: 86400
+
+  proxy_media:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/ProxyMedia.list"
+    path: ./rules/proxy_media.list
+    interval: 86400
+
+  gfw_list:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/ProxyGFWlist.list"
+    path: ./rules/gfw_list.list
+    interval: 86400
+
+  china_domain:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/ChinaDomain.list"
+    path: ./rules/china_domain.list
+    interval: 86400
+
+  china_company_ip:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/ChinaCompanyIp.list"
+    path: ./rules/china_company_ip.list
+    interval: 86400
+
+# ── 代理组（#!replace 完整替换订阅自带代理组）──────────────────────────────
+# include-all: true  → Stash 引用订阅全部节点 + 远程代理集
+# filter             → 正则从全部节点中按地区筛选
+
+proxy-groups: #!replace
+
+  # 顶层手动选择
+  - name: 🚀 节点选择
+    type: select
+    include-all: true
+    proxies:
+      - ♻️ 自动选择
+      - 🇭🇰 香港自动
+      - 🇯🇵 日本自动
+      - 🇺🇸 美国自动
+      - 🇸🇬 新加坡自动
+      - DIRECT
+
+  # 全局自动测速
+  - name: ♻️ 自动选择
+    type: url-test
+    include-all: true
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    lazy: true
+
+  # ── 地区节点（url-test 自动选最快）──
+
+  - name: 🇭🇰 香港自动
+    type: url-test
+    include-all: true
+    filter: "(?i)(港|HK|Hong.?Kong|🇭🇰)"
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    lazy: true
+
+  - name: 🇯🇵 日本自动
+    type: url-test
+    include-all: true
+    filter: "(?i)(日本|JP|Japan|Tokyo|Osaka|🇯🇵)"
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    lazy: true
+
+  - name: 🇺🇸 美国自动
+    type: url-test
+    include-all: true
+    filter: "(?i)(美国|US|United.?States|Los.?Angeles|San.?Jose|Seattle|New.?York|🇺🇸)"
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    lazy: true
+
+  - name: 🇸🇬 新加坡自动
+    type: url-test
+    include-all: true
+    filter: "(?i)(新加坡|SG|Singapore|狮城|🇸🇬)"
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    lazy: true
+
+  # ── 功能专用组 ──
+
+  # AI：默认走美国（ChatGPT/Claude 对节点地区严格），可手动切其他地区
+  - name: 🤖 AI服务
+    type: select
+    proxies:
+      - 🇺🇸 美国自动
+      - 🇯🇵 日本自动
+      - 🇸🇬 新加坡自动
+      - 🚀 节点选择
+
+  # GitHub：优先日本低延迟，备选美国
+  - name: 🐙 GitHub
+    type: select
+    proxies:
+      - 🇯🇵 日本自动
+      - 🇺🇸 美国自动
+      - 🚀 节点选择
+
+  # YouTube：日本/港/新优先（CDN 距离近，画质更稳）
+  - name: 📹 YouTube
+    type: select
+    proxies:
+      - 🇯🇵 日本自动
+      - 🇭🇰 香港自动
+      - 🇸🇬 新加坡自动
+      - 🚀 节点选择
+
+  # 流媒体（Netflix 等需要解锁节点时在此切换）
+  - name: 🎬 流媒体
+    type: select
+    proxies:
+      - 🚀 节点选择
+      - 🇭🇰 香港自动
+      - 🇯🇵 日本自动
+      - 🇸🇬 新加坡自动
+      - 🇺🇸 美国自动
+
+  - name: 📲 Telegram
+    type: select
+    proxies:
+      - 🚀 节点选择
+      - 🇸🇬 新加坡自动
+      - 🇭🇰 香港自动
+
+  # 微软/苹果/游戏：默认直连，需要时可切代理
+  - name: Ⓜ️ 微软服务
+    type: select
+    proxies:
+      - DIRECT
+      - 🚀 节点选择
+
+  - name: 🍎 苹果服务
+    type: select
+    proxies:
+      - DIRECT
+      - 🚀 节点选择
+
+  - name: 🎮 游戏平台
+    type: select
+    proxies:
+      - DIRECT
+      - 🚀 节点选择
+
+  # 功能组
+  - name: 🛑 广告拦截
+    type: select
+    proxies:
+      - REJECT
+      - DIRECT
+
+  - name: 🎯 全球直连
+    type: select
+    proxies:
+      - DIRECT
+      - 🚀 节点选择
+
+  - name: 🐟 漏网之鱼
+    type: select
+    proxies:
+      - 🚀 节点选择
+      - DIRECT
+
+# ── 规则（#!replace 完整替换，按优先级从高到低）────────────────────────────
+
+rules: #!replace
+
+  # 本地网络直连（LAN/loopback，含 IP-CIDR，需 no-resolve）
+  - RULE-SET,local_network,🎯 全球直连,no-resolve
+
+  # 广告拦截
+  - RULE-SET,ban_ad,🛑 广告拦截
+  - RULE-SET,ban_program_ad,🛑 广告拦截
+
+  # AI 服务（最高优先，确保走指定节点）
+  - RULE-SET,openai,🤖 AI服务
+  - RULE-SET,anthropic,🤖 AI服务
+  - RULE-SET,claude,🤖 AI服务
+  - RULE-SET,gemini,🤖 AI服务
+  - RULE-SET,copilot,🤖 AI服务
+  - RULE-SET,perplexity,🤖 AI服务
+  - DOMAIN-SUFFIX,cursor.sh,🤖 AI服务
+  - DOMAIN-SUFFIX,x.ai,🤖 AI服务
+  - DOMAIN-SUFFIX,grok.com,🤖 AI服务
+  - DOMAIN-SUFFIX,openrouter.ai,🤖 AI服务
+
+  # GitHub
+  - RULE-SET,github_rules,🐙 GitHub
+
+  # Google CN 直连（地图、翻译国内版等）
+  - RULE-SET,google_cn,🎯 全球直连
+
+  # 微软服务
+  - RULE-SET,microsoft,Ⓜ️ 微软服务
+
+  # 苹果服务
+  - RULE-SET,apple,🍎 苹果服务
+
+  # Telegram
+  - RULE-SET,telegram,📲 Telegram
+
+  # YouTube
+  - RULE-SET,youtube,📹 YouTube
+
+  # 流媒体
+  - RULE-SET,netflix,🎬 流媒体
+  - RULE-SET,proxy_media,🎬 流媒体
+
+  # B站直连
+  - RULE-SET,bilibili,🎯 全球直连
+
+  # GFW 代理列表
+  - RULE-SET,gfw_list,🚀 节点选择
+
+  # 国内域名/IP 直连
+  - RULE-SET,china_domain,🎯 全球直连
+  - RULE-SET,china_company_ip,🎯 全球直连,no-resolve
+  - GEOIP,LAN,🎯 全球直连,no-resolve
+  - GEOIP,CN,🎯 全球直连,no-resolve
+
+  # 兜底
+  - MATCH,🐟 漏网之鱼
