@@ -233,14 +233,13 @@ proxy-groups: #!replace
 
   # ── 功能专用组 ──
 
-  # AI：默认走美国（ChatGPT/Claude 对节点地区严格），可手动切其他地区
+  # AI：手动锁定一个固定节点防封号 —— 不要用自动测速组，避免 IP 跳变触发风控
+  # include-all + filter 列出美/日/新/台节点（排除香港，ChatGPT 不支持港区）
+  # 进 App 后手动点定其中一个能登录的节点，长期固定使用
   - name: 🤖 AI服务
     type: select
-    proxies:
-      - 🇺🇸 美国自动
-      - 🇯🇵 日本自动
-      - 🇸🇬 新加坡自动
-      - 🚀 节点选择
+    include-all: true
+    filter: "(?i)(美国|US|United|Los|San.?Jose|Seattle|New.?York|日本|JP|Japan|Tokyo|Osaka|新加坡|SG|Singapore|台湾|TW|Taiwan|🇺🇸|🇯🇵|🇸🇬|🇹🇼)"
 
   # GitHub：优先日本低延迟，备选美国
   - name: 🐙 GitHub
