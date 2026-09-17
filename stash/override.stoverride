@@ -18,31 +18,7 @@ desc: 地区分组 + AI(ChatGPT/Claude/Gemini)/流媒体/Telegram 分流，规�
 
 rule-providers:
 
-  # --- AI 服务（blackmatrix7，Clash YAML 格式）---
-
-  openai:
-    type: http
-    behavior: classical
-    format: yaml
-    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/OpenAI/OpenAI.yaml"
-    path: ./rules/openai.yaml
-    interval: 86400
-
-  gemini:
-    type: http
-    behavior: classical
-    format: yaml
-    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Gemini/Gemini.yaml"
-    path: ./rules/gemini.yaml
-    interval: 86400
-
-  copilot:
-    type: http
-    behavior: classical
-    format: yaml
-    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Copilot/Copilot.yaml"
-    path: ./rules/copilot.yaml
-    interval: 86400
+  # --- GitHub（blackmatrix7，Clash YAML 格式）---
 
   github_rules:
     type: http
@@ -58,7 +34,7 @@ rule-providers:
     type: http
     behavior: classical
     format: text
-    url: "https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/LocalAreaNetwork.list"
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/LocalAreaNetwork.list"
     path: ./rules/local_network.list
     interval: 86400
 
@@ -66,7 +42,7 @@ rule-providers:
     type: http
     behavior: classical
     format: text
-    url: "https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/BanAD.list"
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/BanAD.list"
     path: ./rules/ban_ad.list
     interval: 86400
 
@@ -74,7 +50,7 @@ rule-providers:
     type: http
     behavior: classical
     format: text
-    url: "https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/BanProgramAD.list"
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/BanProgramAD.list"
     path: ./rules/ban_program_ad.list
     interval: 86400
 
@@ -82,7 +58,7 @@ rule-providers:
     type: http
     behavior: classical
     format: text
-    url: "https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/GoogleCN.list"
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/GoogleCN.list"
     path: ./rules/google_cn.list
     interval: 86400
 
@@ -90,7 +66,7 @@ rule-providers:
     type: http
     behavior: classical
     format: text
-    url: "https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Microsoft.list"
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Microsoft.list"
     path: ./rules/microsoft.list
     interval: 86400
 
@@ -98,7 +74,7 @@ rule-providers:
     type: http
     behavior: classical
     format: text
-    url: "https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Apple.list"
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Apple.list"
     path: ./rules/apple.list
     interval: 86400
 
@@ -106,7 +82,7 @@ rule-providers:
     type: http
     behavior: classical
     format: text
-    url: "https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Telegram.list"
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Telegram.list"
     path: ./rules/telegram.list
     interval: 86400
 
@@ -114,7 +90,7 @@ rule-providers:
     type: http
     behavior: classical
     format: text
-    url: "https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Ruleset/YouTube.list"
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/YouTube.list"
     path: ./rules/youtube.list
     interval: 86400
 
@@ -122,7 +98,7 @@ rule-providers:
     type: http
     behavior: classical
     format: text
-    url: "https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Ruleset/Netflix.list"
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Netflix.list"
     path: ./rules/netflix.list
     interval: 86400
 
@@ -130,23 +106,24 @@ rule-providers:
     type: http
     behavior: classical
     format: text
-    url: "https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Ruleset/Bilibili.list"
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Bilibili.list"
     path: ./rules/bilibili.list
     interval: 86400
 
+  # 使用 Clash Providers 版，原 .list 含不兼容的 URL-REGEX
   proxy_media:
     type: http
     behavior: classical
-    format: text
-    url: "https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/ProxyMedia.list"
-    path: ./rules/proxy_media.list
+    format: yaml
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/ProxyMedia.yaml"
+    path: ./rules/proxy_media.yaml
     interval: 86400
 
   gfw_list:
     type: http
     behavior: classical
     format: text
-    url: "https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/ProxyGFWlist.list"
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ProxyGFWlist.list"
     path: ./rules/gfw_list.list
     interval: 86400
 
@@ -154,7 +131,7 @@ rule-providers:
     type: http
     behavior: classical
     format: text
-    url: "https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/ChinaDomain.list"
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaDomain.list"
     path: ./rules/china_domain.list
     interval: 86400
 
@@ -162,7 +139,7 @@ rule-providers:
     type: http
     behavior: classical
     format: text
-    url: "https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/ChinaCompanyIp.list"
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaCompanyIp.list"
     path: ./rules/china_company_ip.list
     interval: 86400
 
@@ -198,7 +175,7 @@ proxy-groups: #!replace
   - name: 🇭🇰 香港自动
     type: url-test
     include-all: true
-    filter: "(?i)(港|HK|Hong.?Kong|🇭🇰)"
+    filter: '(?i)(香港|Hong[ ._-]?Kong|🇭🇰|(^|[^a-z])HK([^a-z]|$))'
     url: https://www.gstatic.com/generate_204
     interval: 300
     tolerance: 50
@@ -207,7 +184,7 @@ proxy-groups: #!replace
   - name: 🇯🇵 日本自动
     type: url-test
     include-all: true
-    filter: "(?i)(日本|JP|Japan|Tokyo|Osaka|🇯🇵)"
+    filter: '(?i)(日本|Japan|Tokyo|Osaka|🇯🇵|(^|[^a-z])JP([^a-z]|$))'
     url: https://www.gstatic.com/generate_204
     interval: 300
     tolerance: 50
@@ -216,7 +193,7 @@ proxy-groups: #!replace
   - name: 🇺🇸 美国自动
     type: url-test
     include-all: true
-    filter: "(?i)(美国|US|United.?States|Los.?Angeles|San.?Jose|Seattle|New.?York|🇺🇸)"
+    filter: '(?i)(美国|United[ ._-]?States|Los[ ._-]?Angeles|San[ ._-]?Jose|Seattle|New[ ._-]?York|🇺🇸|(^|[^a-z])US([^a-z]|$))'
     url: https://www.gstatic.com/generate_204
     interval: 300
     tolerance: 50
@@ -225,7 +202,7 @@ proxy-groups: #!replace
   - name: 🇸🇬 新加坡自动
     type: url-test
     include-all: true
-    filter: "(?i)(新加坡|SG|Singapore|狮城|🇸🇬)"
+    filter: '(?i)(新加坡|Singapore|狮城|🇸🇬|(^|[^a-z])SG([^a-z]|$))'
     url: https://www.gstatic.com/generate_204
     interval: 300
     tolerance: 50
@@ -233,13 +210,14 @@ proxy-groups: #!replace
 
   # ── 功能专用组 ──
 
-  # AI：手动锁定一个固定节点防封号 —— 不要用自动测速组，避免 IP 跳变触发风控
-  # include-all + filter 列出美/日/新/台节点（排除香港，ChatGPT 不支持港区）
-  # 进 App 后手动点定其中一个能登录的节点，长期固定使用
+  # AI：手动选择固定节点；REJECT 用于未选择/无匹配节点时阻止请求
+  # 首次使用需手动选节点；REJECT 也保留在 filter 中，兼容对显式项过滤的客户端
   - name: 🤖 AI服务
     type: select
     include-all: true
-    filter: "(?i)(美国|US|United|Los|San.?Jose|Seattle|New.?York|日本|JP|Japan|Tokyo|Osaka|新加坡|SG|Singapore|台湾|TW|Taiwan|🇺🇸|🇯🇵|🇸🇬|🇹🇼)"
+    filter: '(?i)(美国|United[ ._-]?States|Los[ ._-]?Angeles|San[ ._-]?Jose|Seattle|New[ ._-]?York|日本|Japan|Tokyo|Osaka|新加坡|Singapore|狮城|台湾|Taiwan|🇺🇸|🇯🇵|🇸🇬|🇹🇼|(^|[^a-z])(US|JP|SG|TW)([^a-z]|$)|^REJECT$)'
+    proxies:
+      - REJECT
 
   # GitHub：优先日本低延迟，备选美国
   - name: 🐙 GitHub
@@ -275,7 +253,7 @@ proxy-groups: #!replace
       - 🇸🇬 新加坡自动
       - 🇭🇰 香港自动
 
-  # 微软/苹果/游戏：默认直连，需要时可切代理
+  # 微软/苹果：默认直连，需要时可切代理
   - name: Ⓜ️ 微软服务
     type: select
     proxies:
@@ -283,12 +261,6 @@ proxy-groups: #!replace
       - 🚀 节点选择
 
   - name: 🍎 苹果服务
-    type: select
-    proxies:
-      - DIRECT
-      - 🚀 节点选择
-
-  - name: 🎮 游戏平台
     type: select
     proxies:
       - DIRECT
@@ -320,25 +292,76 @@ rules: #!replace
   # 本地网络直连（LAN/loopback，含 IP-CIDR，需 no-resolve）
   - RULE-SET,local_network,🎯 全球直连,no-resolve
 
-  # 广告拦截
-  - RULE-SET,ban_ad,🛑 广告拦截
-  - RULE-SET,ban_program_ad,🛑 广告拦截
-
-  # AI 服务（最高优先，确保走指定节点）
-  # Claude/Perplexity 改内联：blackmatrix7 的 Anthropic/Claude 规则集重复且缺 claude.com，Perplexity 源已失效(403)
-  # 补充远程 OpenAI 规则集未收录的站点域名（含所有子域名）
+  # AI：明确服务域名优先于广告和通用规则；不按通用 SaaS 域名或整段 ASN 分流
+  # OpenAI / ChatGPT（含站点、静态资源、语音与专用验证端点）
+  - DOMAIN-SUFFIX,openai.com,🤖 AI服务
+  - DOMAIN-SUFFIX,chatgpt.com,🤖 AI服务
   - DOMAIN-SUFFIX,chatgpt.site,🤖 AI服务
-  - RULE-SET,openai,🤖 AI服务
-  - RULE-SET,gemini,🤖 AI服务
-  - RULE-SET,copilot,🤖 AI服务
+  - DOMAIN-SUFFIX,sora.com,🤖 AI服务
+  - DOMAIN-SUFFIX,oaistatic.com,🤖 AI服务
+  - DOMAIN-SUFFIX,oaiusercontent.com,🤖 AI服务
+  - DOMAIN-SUFFIX,chatgpt.livekit.cloud,🤖 AI服务
+  - DOMAIN,host.livekit.cloud,🤖 AI服务
+  - DOMAIN,turn.livekit.cloud,🤖 AI服务
+  - DOMAIN,openai-api.arkoselabs.com,🤖 AI服务
+  - DOMAIN,client-api.arkoselabs.com,🤖 AI服务
+  - DOMAIN,openai.auth0.com,🤖 AI服务
+  - DOMAIN,chat.openai.com.cdn.cloudflare.net,🤖 AI服务
+  - DOMAIN,openaicom-api-bdcpf8c6d2e9atf6.z01.azurefd.net,🤖 AI服务
+  - DOMAIN,openaicomproductionae4b.blob.core.windows.net,🤖 AI服务
+  - DOMAIN,production-openaicom-storage.azureedge.net,🤖 AI服务
+  - DOMAIN,openaiapi-site.azureedge.net,🤖 AI服务
+  - DOMAIN,openaicom.imgix.net,🤖 AI服务
+
+  # Claude / Perplexity
   - DOMAIN-SUFFIX,anthropic.com,🤖 AI服务
   - DOMAIN-SUFFIX,claude.ai,🤖 AI服务
   - DOMAIN-SUFFIX,claude.com,🤖 AI服务
+  - DOMAIN-SUFFIX,claudeusercontent.com,🤖 AI服务
   - DOMAIN-SUFFIX,perplexity.ai,🤖 AI服务
+
+  # Gemini / AI Studio（不将整个 googleapis.com / apis.google.com 归入 AI）
+  - DOMAIN-SUFFIX,gemini.google.com,🤖 AI服务
+  - DOMAIN-SUFFIX,aistudio.google.com,🤖 AI服务
+  - DOMAIN-SUFFIX,notebooklm.google.com,🤖 AI服务
+  - DOMAIN-SUFFIX,notebooklm.google,🤖 AI服务
+  - DOMAIN,ai.google.dev,🤖 AI服务
+  - DOMAIN,makersuite.google.com,🤖 AI服务
+  - DOMAIN,bard.google.com,🤖 AI服务
+  - DOMAIN,generativelanguage.googleapis.com,🤖 AI服务
+  - DOMAIN,alkalimakersuite-pa.clients6.google.com,🤖 AI服务
+  - DOMAIN,proactivebackend-pa.googleapis.com,🤖 AI服务
+  - DOMAIN-SUFFIX,generativeai.google,🤖 AI服务
+  - DOMAIN-SUFFIX,deepmind.com,🤖 AI服务
+  - DOMAIN-SUFFIX,deepmind.google,🤖 AI服务
+
+  # Microsoft Copilot 与 GitHub Copilot（先于微软/GitHub 通用规则）
+  - DOMAIN-SUFFIX,copilot.microsoft.com,🤖 AI服务
+  - DOMAIN-SUFFIX,copilot.cloud.microsoft,🤖 AI服务
+  - DOMAIN,sydney.bing.com,🤖 AI服务
+  - DOMAIN,edgeservices.bing.com,🤖 AI服务
+  - DOMAIN,services.bingapis.com,🤖 AI服务
+  - DOMAIN,gateway.bingviz.microsoft.net,🤖 AI服务
+  - DOMAIN,gateway.bingviz.microsoftapp.net,🤖 AI服务
+  - DOMAIN-SUFFIX,githubcopilot.com,🤖 AI服务
+  - DOMAIN,copilot-proxy.githubusercontent.com,🤖 AI服务
+  - DOMAIN,copilot-telemetry.githubusercontent.com,🤖 AI服务
+  - DOMAIN,origin-tracker.githubusercontent.com,🤖 AI服务
+  - DOMAIN,default.exp-tas.com,🤖 AI服务
+
+  # Cursor / Grok / OpenRouter
   - DOMAIN-SUFFIX,cursor.sh,🤖 AI服务
+  - DOMAIN-SUFFIX,cursor.com,🤖 AI服务
+  - DOMAIN-SUFFIX,cursorapi.com,🤖 AI服务
+  - DOMAIN-SUFFIX,cursor-cdn.com,🤖 AI服务
+  - DOMAIN-SUFFIX,cursorvm.com,🤖 AI服务
   - DOMAIN-SUFFIX,x.ai,🤖 AI服务
   - DOMAIN-SUFFIX,grok.com,🤖 AI服务
   - DOMAIN-SUFFIX,openrouter.ai,🤖 AI服务
+
+  # 广告拦截（明确 AI 域名优先，其他请求正常过滤）
+  - RULE-SET,ban_ad,🛑 广告拦截
+  - RULE-SET,ban_program_ad,🛑 广告拦截
 
   # GitHub
   - RULE-SET,github_rules,🐙 GitHub
