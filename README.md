@@ -18,7 +18,7 @@
 - Ⓜ️ 微软 / 🍎 苹果 / 🎮 游戏（默认直连）
 - 🛑 广告拦截 / 🎯 全球直连 / 🐟 漏网之鱼（兜底）
 
-规则集来自 [blackmatrix7](https://github.com/blackmatrix7/ios_rule_script)（AI/GitHub）与 [ACL4SSR](https://github.com/ACL4SSR/ACL4SSR)（基础分流），经 jsDelivr CDN 引用，每日自动更新。
+规则集来自 [blackmatrix7](https://github.com/blackmatrix7/ios_rule_script)（AI/GitHub）与 [ACL4SSR](https://github.com/ACL4SSR/ACL4SSR)（基础分流），经 jsDelivr CDN 引用，每日自动更新。两份配置还内联补充了 `chatgpt.site` 后缀规则，其所有子域名（如 `index-investing-daily-lcy.chaselee9999.chatgpt.site`）均走 `🤖 AI服务`。
 
 ## 使用方法
 
@@ -37,6 +37,8 @@
    ```
 3. 将该覆写挂到订阅上 → 分组和规则生效。
 4. **换机场时只换订阅、覆写不动**，分组规则自动复用。
+
+仓库配置更新发布后，已有用户需在 Stash 中手动更新远程覆写并重新应用配置；若使用 jsDelivr 链接仍读到旧内容，可改用上面的 raw 链接。确认处于规则模式，在 `🤖 AI服务` 中选好可用节点，再重新连接并访问站点，在请求记录中检查是否命中 `DOMAIN-SUFFIX,chatgpt.site` 和 `🤖 AI服务`。下方 `interval: 86400` 只控制远程规则集更新，不会自动把仓库新增的内联规则带入手机。
 
 ### Clash Verge Rev（桌面）
 

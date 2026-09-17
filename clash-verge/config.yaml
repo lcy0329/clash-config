@@ -334,6 +334,8 @@ rules:
 
   # AI 服务（最高优先，确保走美国节点）
   # Claude/Perplexity 改内联：blackmatrix7 的 Anthropic/Claude 规则集重复且缺 claude.com，Perplexity 源已失效(403)
+  # 补充远程 OpenAI 规则集未收录的站点域名（含所有子域名）
+  - DOMAIN-SUFFIX,chatgpt.site,🤖 AI服务
   - RULE-SET,openai,🤖 AI服务
   - RULE-SET,gemini,🤖 AI服务
   - RULE-SET,copilot,🤖 AI服务
