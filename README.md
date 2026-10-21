@@ -26,18 +26,18 @@ AI 域名直接维护在两份配置中，不再引入将整段 ASN、`stripe.co
 
 ## 使用方法
 
-> 把下方链接里的 `<YOUR_GITHUB_USERNAME>` 替换成你的 GitHub 用户名。
+> 下方链接可以直接复制使用。
 
 ### Stash（iPhone）
 
 1. 照常在 Stash 里导入机场订阅。
 2. **设置 → 覆写（Override）→ 添加 → 远程**，填入：
    ```
-   https://raw.githubusercontent.com/<YOUR_GITHUB_USERNAME>/clash-config/main/stash/override.stoverride
+   https://raw.githubusercontent.com/lcy0329/clash-config/main/stash/override.stoverride
    ```
    国内访问 `raw.githubusercontent.com` 不稳时，改用 jsDelivr：
    ```
-   https://cdn.jsdelivr.net/gh/<YOUR_GITHUB_USERNAME>/clash-config@main/stash/override.stoverride
+   https://cdn.jsdelivr.net/gh/lcy0329/clash-config@main/stash/override.stoverride
    ```
 3. 将该覆写挂到订阅上，在规则模式下使用。
 4. 在 `🤖 AI服务` 中手动选择一个可用节点。配置显式加入了 `REJECT` 保护项，首次加载不要停留在 `REJECT`；已有选择可能由客户端保留。
