@@ -45,6 +45,10 @@ AI 域名直接维护在两份配置中，不再引入将整段 ASN、`stripe.co
 
 仓库配置更新发布后，已有用户需在 Stash 中手动更新远程覆写并重新应用配置；若使用 jsDelivr 链接仍读到旧内容，可改用上面的 raw 链接。确认处于规则模式，在 `🤖 AI服务` 中选好可用节点，再重新连接并访问站点，在请求记录中检查是否命中 `DOMAIN-SUFFIX,chatgpt.site` 和 `🤖 AI服务`。下方 `interval: 86400` 只控制远程规则集更新，不会自动把仓库新增的内联规则带入手机。
 
+手机覆写现在明确使用阿里/DNSPod 两家国内 DoH，DNS 查询直连；替换订阅的旧 DNS 列表、域名策略和 fallback，保留订阅的 Fake-IP 过滤与地址范围，`.lan` / `.local` / `.home.arpa` 使用系统 DNS。远程规则集也完整替换为本文件使用的15个，避免订阅旧规则集留存。常规代理连接继续通过 Fake-IP 将域名交给节点解析。针对手机日志中的切网 IPv6 无路由，暂设顶层和 `dns.ipv6: false`；这些开关需要 **iOS Stash 3.6+**。语法依据见 [Stash DNS 文档](https://stash.wiki/features/dns-server)。
+
+应用手机优化：先确认 Stash 版本，再用本地文件替换现有覆写，或在仓库发布后更新远程覆写；将它放在其他会修改 DNS/IPv6 的覆写之后，重新应用并断开/重连。Wi-Fi 和蜂窝网络各测试淘宝、微信、抖音，再切换网络复测，观察是否仍有大量 `couldn't find ip` / `no route to host`。本地修改不会自动更新手机；本机 DNS 对照和配置检查也不能替代手机实测。日志中部分域名经两家 DoH 均返回 NXDOMAIN，不能承诺所有 DNS 告警都消失。IPv6 网络修复后，可删除两个 `ipv6: false` 字段恢复自动判断。
+
 ### Clash Verge Rev（桌面）
 
 把 [`clash-verge/config.yaml`](clash-verge/config.yaml) 内容粘到 **设置 → Merge / 全局扩展配置**，或在订阅的 Merge 字段引用本文件。
@@ -63,7 +67,7 @@ AI 域名直接维护在两份配置中，不再引入将整段 ASN、`stripe.co
 只需系统 Ruby 和 curl，不需要安装依赖：
 
 ```sh
-ruby scripts/verify.rb          # YAML、引用、两端一致性、正则正反例、AI 域名
+ruby scripts/verify.rb          # YAML、引用、两端一致性、AI 域名、Stash DNS/IPv6
 ruby scripts/verify.rb --online # 另检查所有远程源及完整域名规则顺序
 ```
 

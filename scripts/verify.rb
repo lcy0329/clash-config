@@ -34,6 +34,23 @@ configs = FILES.map { |file| YAML.load_file(File.join(ROOT, file)) }
 end
 check(File.read(File.join(ROOT, FILES[0])).match?(/^rules: #!replace$/), 'Stash rules 缺少 replace')
 check(File.read(File.join(ROOT, FILES[0])).match?(/^proxy-groups: #!replace$/), 'Stash groups 缺少 replace')
+check(File.read(File.join(ROOT, FILES[0])).match?(/^rule-providers: #!replace$/), 'Stash rule-providers 缺少 replace，会保留订阅旧规则集')
+
+# Stash DNS must replace subscription arrays/policies, not prepend to them.
+stash_text = File.read(File.join(ROOT, FILES[0]))
+stash_dns = configs[0].fetch('dns')
+check(configs[0]['ipv6'] == false && stash_dns['ipv6'] == false, 'Stash 必须同时关闭内核与应用 IPv6 解析')
+check(stash_dns['follow-rule'] == false, 'Stash DNS 不应依赖代理组')
+check(stash_dns['default-nameserver'] == %w[223.5.5.5 119.29.29.29], 'Stash DoH bootstrap 必须使用国内 IP')
+check(stash_dns['nameserver'] == %w[https://dns.alidns.com/dns-query https://doh.pub/dns-query], 'Stash 仅使用两家国内 DoH')
+check(stash_dns['proxy-server-nameserver'] == stash_dns['nameserver'], 'Stash 节点解析必须使用独立国内 DNS')
+check(stash_dns['nameserver-policy'] == {'+.lan' => 'system', '+.local' => 'system', '+.home.arpa' => 'system'}, 'Stash 未清除旧 DNS policy 或丢失局域网解析')
+check(stash_dns['fallback'] == [], 'Stash 不应保留订阅 fallback')
+check(stash_text.match?(/^dns:\s*$/) && !stash_dns.key?('fake-ip-filter') && !stash_dns.key?('fake-ip-range'), 'Stash 应按键合并 DNS 并保留订阅 Fake-IP 配置')
+%w[default-nameserver nameserver proxy-server-nameserver nameserver-policy fallback].each do |key|
+  check(stash_text.match?(/^  #{Regexp.escape(key)}:.*#!replace\s*$/), "Stash #{key} 缺少 replace，旧 DNS 会继续生效")
+end
+
 
 configs.each do |config|
   groups = config.fetch('proxy-groups')
@@ -86,7 +103,7 @@ end
    apis.google.com maps.googleapis.com www.bing.com github.com].each do |host|
   check(!rules.any? { |r| r.split(',')[2] == AI && domain_match?(r, host) }, "无关域名被归入 AI #{host}")
 end
-puts "PASS: 两端 YAML、规则引用、节点筛选及 #{ai_hosts.size} 个 AI 域名"
+puts "PASS: 两端 YAML、规则引用、节点筛选及 #{ai_hosts.size} 个 AI 域名；Stash DNS/IPv6"
 exit unless ARGV.include?('--online')
 
 Dir.mktmpdir('clash-verify-') do |dir|
@@ -109,7 +126,11 @@ Dir.mktmpdir('clash-verify-') do |dir|
   expected = ai_hosts.to_h { |host| [host, AI] }.merge(
     'github.com' => '🐙 GitHub', 'raw.githubusercontent.com' => '🐙 GitHub',
     'www.youtube.com' => '📹 YouTube', 'www.netflix.com' => '🎬 流媒体',
-    'www.bilibili.com' => '🎯 全球直连', 'router.asus.com' => '🎯 全球直连')
+    'www.bilibili.com' => '🎯 全球直连', 'router.asus.com' => '🎯 全球直连',
+    'acs.m.taobao.com' => '🎯 全球直连', 'gw.alipayobjects.com' => '🎯 全球直连',
+    'wx.qlogo.cn' => '🎯 全球直连', 'v5-bd-daily-music.douyinstatic.com' => '🎯 全球直连',
+    'maplocatesdksnapshot.d.meituan.net' => '🎯 全球直连', 'owner-api.vn.cloud.tesla.cn' => '🎯 全球直连',
+    'th.pinduoduo.com' => '🎯 全球直连')
   expected.each do |host, target|
     matched = rules.find do |rule|
       type, value = rule.split(',')

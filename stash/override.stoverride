@@ -5,18 +5,46 @@
 #
 # 适配要点（相对 Clash Verge / Mihomo）：
 #   1. include-all-providers + include-all-proxies  →  include-all: true
-#   2. proxy-groups / rules 顶层加 #!replace，完整替换订阅自带分组与规则
+#   2. proxy-groups / rules / rule-providers 加 #!replace，完整替换订阅策略
 #      （Stash 覆写默认是「前置插入」而非替换，必须加此标记）
 #   3. 删除 profile（Stash 在 App 设置中管理，默认已记住手动选择）
 #   4. rule-providers / RULE-SET / GEOIP / MATCH 与 Mihomo 兼容，原样保留
 # =============================================================================
 
 name: 节点分组与智能分流
-desc: 地区分组 + AI(ChatGPT/Claude/Gemini)/流媒体/Telegram 分流，规则每日更新
+desc: 国内双 DoH + IPv4 稳定解析；地区/AI/流媒体/Telegram 分流，规则每日更新
+
+# ── 手机 DNS / IPv6（iOS Stash 3.6+）─────────────────────────────────────
+# 日志出现直连解析失败、切网时 IPv6 no route to host；先用 IPv4 稳定出口。
+# 顶层开关同时约束 Stash 自身连接，只有 dns.ipv6 不足以限制 DIRECT 解析。
+ipv6: false
+
+dns:
+  ipv6: false
+  follow-rule: false
+  # 只用于解析 DoH 服务器域名，避免依赖当前 Wi-Fi 的 DNS / Fake-IP。
+  default-nameserver: #!replace
+    - 223.5.5.5
+    - 119.29.29.29
+  # 两家国内 DoH 并发查询；普通 UDP 在本机对照中出现超时 / SERVFAIL。
+  nameserver: #!replace
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+  proxy-server-nameserver: #!replace
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+  # 清除订阅的旧解析策略与 fallback；保留常见局域网域名的系统解析。
+  nameserver-policy: #!replace
+    '+.lan': system
+    '+.local': system
+    '+.home.arpa': system
+  fallback: [] #!replace
+  # dns 按键合并，保留订阅的 fake-ip-filter / fake-ip-range。
 
 # ── 规则集 ───────────────────────────────────────────────────────────────────
 
-rule-providers:
+# 完整替换，避免订阅中的旧规则集留在手机配置里占用资源。
+rule-providers: #!replace
 
   # --- GitHub（blackmatrix7，Clash YAML 格式）---
 
