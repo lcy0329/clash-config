@@ -29,9 +29,12 @@ def domain_match?(rule, host)
 end
 
 configs = FILES.map { |file| YAML.load_file(File.join(ROOT, file)) }
-%w[rules rule-providers].each do |key|
-  check(configs[0].fetch(key) == configs[1].fetch(key), "两端 #{key} 不一致")
-end
+domestic_geoip = 'GEOIP,CN,🎯 全球直连'
+check(configs[0]['rules'].include?("#{domestic_geoip},no-resolve"), '手机分步验证期间必须保留 GeoIP no-resolve')
+check(configs[1]['rules'].include?(domestic_geoip), '桌面国内 GeoIP 必须允许解析补漏')
+normalized_mobile_rules = configs[0].fetch('rules').map { |r| r == "#{domestic_geoip},no-resolve" ? domestic_geoip : r }
+check(normalized_mobile_rules == configs[1].fetch('rules'), '除国内 GeoIP 解析策略外，两端规则必须一致')
+check(configs[0]['rule-providers'] == configs[1]['rule-providers'], '两端规则源不一致')
 check(File.read(File.join(ROOT, FILES[0])).match?(/^rules: #!replace$/), 'Stash rules 缺少 replace')
 check(File.read(File.join(ROOT, FILES[0])).match?(/^proxy-groups: #!replace$/), 'Stash groups 缺少 replace')
 check(File.read(File.join(ROOT, FILES[0])).match?(/^rule-providers: #!replace$/), 'Stash rule-providers 缺少 replace，会保留订阅旧规则集')
@@ -51,6 +54,22 @@ check(stash_text.match?(/^dns:\s*$/) && !stash_dns.key?('fake-ip-filter') && !st
   check(stash_text.match?(/^  #{Regexp.escape(key)}:.*#!replace\s*$/), "Stash #{key} 缺少 replace，旧 DNS 会继续生效")
 end
 
+
+domestic_hosts = %w[deepseek.com api.deepseek.com kimi.moonshot.cn www.kimi.com
+  api.moonshot.ai doubao.com ime.doubao.com open.bigmodel.cn].to_h { |h| [h, 'DIRECT'] }.merge(
+  %w[www.volcengine.com www.yuque.com gitee.com www.nowcoder.com xhslink.com
+     video.bilicdn1.com www.wps.com].to_h { |h| [h, '🎯 全球直连'] })
+configs.each do |config|
+  domestic_hosts.each do |host, target|
+    rule = config['rules'].find { |r| domain_match?(r, host) }
+    check(rule && rule.split(',')[2] == target, "国内域名补漏失败 #{host}")
+  end
+  %w[notdeepseek.com deepseek.com.example.org notgitee.com gitee.com.example.org].each do |host|
+    check(!config['rules'].any? { |r| domain_match?(r, host) }, "国内补漏误匹配相似域名 #{host}")
+  end
+  fallback = config['proxy-groups'].find { |g| g['name'] == '🐟 漏网之鱼' }
+  check(fallback['proxies'].first == '🚀 节点选择', '未匹配请求默认须进入代理选择')
+end
 
 configs.each do |config|
   groups = config.fetch('proxy-groups')
@@ -130,7 +149,7 @@ Dir.mktmpdir('clash-verify-') do |dir|
     'acs.m.taobao.com' => '🎯 全球直连', 'gw.alipayobjects.com' => '🎯 全球直连',
     'wx.qlogo.cn' => '🎯 全球直连', 'v5-bd-daily-music.douyinstatic.com' => '🎯 全球直连',
     'maplocatesdksnapshot.d.meituan.net' => '🎯 全球直连', 'owner-api.vn.cloud.tesla.cn' => '🎯 全球直连',
-    'th.pinduoduo.com' => '🎯 全球直连')
+    'th.pinduoduo.com' => '🎯 全球直连').merge(domestic_hosts)
   expected.each do |host, target|
     matched = rules.find do |rule|
       type, value = rule.split(',')

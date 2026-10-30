@@ -1,7 +1,7 @@
 # =============================================================================
 # Stash 覆写配置（Override / .stoverride）
-# 配置更新时间：2026-10-21 22:35（香港时间 UTC+8）
-# 与 clash-verge/config.yaml 分流逻辑一致，已按 Stash 内核语法适配
+# 配置更新时间：2026-10-30（香港时间 UTC+8）
+# 与桌面共享域名分流；手机暂保留国内 GeoIP no-resolve，分步验证 DNS 开销
 # 多机场通用：换机场只换订阅，本覆写不动
 #
 # 适配要点（相对 Clash Verge / Mihomo）：
@@ -13,7 +13,7 @@
 # =============================================================================
 
 name: 节点分组与智能分流
-desc: 更新于 2026-10-21 22:35（香港时间）；国内双 DoH + IPv4 稳定解析；地区/AI/流媒体/Telegram 分流，规则每日更新
+desc: 更新于 2026-10-30（香港时间）；补齐国内 AI/服务直连，保留双 DoH、IPv4 与 GeoIP no-resolve；规则集每日更新
 
 # ── 手机 DNS / IPv6（iOS Stash 3.6+）─────────────────────────────────────
 # 日志出现直连解析失败、切网时 IPv6 no route to host；先用 IPv4 稳定出口。
@@ -321,6 +321,14 @@ rules: #!replace
   # 本地网络直连（LAN/loopback，含 IP-CIDR，需 no-resolve）
   - RULE-SET,local_network,🎯 全球直连,no-resolve
 
+  # 国内 AI：明确直连，避免新域名落入海外代理兜底。
+  - DOMAIN-SUFFIX,deepseek.com,DIRECT
+  - DOMAIN-SUFFIX,moonshot.cn,DIRECT
+  - DOMAIN-SUFFIX,moonshot.ai,DIRECT
+  - DOMAIN-SUFFIX,kimi.com,DIRECT
+  - DOMAIN-SUFFIX,doubao.com,DIRECT
+  - DOMAIN-SUFFIX,bigmodel.cn,DIRECT
+
   # AI：明确服务域名优先于广告和通用规则；不按通用 SaaS 域名或整段 ASN 分流
   # OpenAI / ChatGPT（含站点、静态资源、语音与专用验证端点）
   - DOMAIN-SUFFIX,openai.com,🤖 AI服务
@@ -392,6 +400,15 @@ rules: #!replace
   - RULE-SET,ban_ad,🛑 广告拦截
   - RULE-SET,ban_program_ad,🛑 广告拦截
 
+  # 国内服务补充：广告过滤之后、通用代理规则之前。
+  - DOMAIN-SUFFIX,volcengine.com,🎯 全球直连
+  - DOMAIN-SUFFIX,yuque.com,🎯 全球直连
+  - DOMAIN-SUFFIX,gitee.com,🎯 全球直连
+  - DOMAIN-SUFFIX,nowcoder.com,🎯 全球直连
+  - DOMAIN-SUFFIX,xhslink.com,🎯 全球直连
+  - DOMAIN-SUFFIX,bilicdn1.com,🎯 全球直连
+  - DOMAIN-SUFFIX,wps.com,🎯 全球直连
+
   # GitHub
   - RULE-SET,github_rules,🐙 GitHub
 
@@ -424,6 +441,7 @@ rules: #!replace
   - RULE-SET,china_domain,🎯 全球直连
   - RULE-SET,china_company_ip,🎯 全球直连,no-resolve
   - GEOIP,LAN,🎯 全球直连,no-resolve
+  # 手机先保留按需解析策略；Wi-Fi/蜂窝实测后再评估主动 GeoIP 解析。
   - GEOIP,CN,🎯 全球直连,no-resolve
 
   # 兜底

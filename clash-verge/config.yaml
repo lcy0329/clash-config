@@ -298,6 +298,14 @@ rules:
   # 本地网络直连（LAN/loopback，含 IP-CIDR，需 no-resolve）
   - RULE-SET,local_network,🎯 全球直连,no-resolve
 
+  # 国内 AI：明确直连，避免新域名落入海外代理兜底。
+  - DOMAIN-SUFFIX,deepseek.com,DIRECT
+  - DOMAIN-SUFFIX,moonshot.cn,DIRECT
+  - DOMAIN-SUFFIX,moonshot.ai,DIRECT
+  - DOMAIN-SUFFIX,kimi.com,DIRECT
+  - DOMAIN-SUFFIX,doubao.com,DIRECT
+  - DOMAIN-SUFFIX,bigmodel.cn,DIRECT
+
   # AI：明确服务域名优先于广告和通用规则；不按通用 SaaS 域名或整段 ASN 分流
   # OpenAI / ChatGPT（含站点、静态资源、语音与专用验证端点）
   - DOMAIN-SUFFIX,openai.com,🤖 AI服务
@@ -369,6 +377,15 @@ rules:
   - RULE-SET,ban_ad,🛑 广告拦截
   - RULE-SET,ban_program_ad,🛑 广告拦截
 
+  # 国内服务补充：广告过滤之后、通用代理规则之前。
+  - DOMAIN-SUFFIX,volcengine.com,🎯 全球直连
+  - DOMAIN-SUFFIX,yuque.com,🎯 全球直连
+  - DOMAIN-SUFFIX,gitee.com,🎯 全球直连
+  - DOMAIN-SUFFIX,nowcoder.com,🎯 全球直连
+  - DOMAIN-SUFFIX,xhslink.com,🎯 全球直连
+  - DOMAIN-SUFFIX,bilicdn1.com,🎯 全球直连
+  - DOMAIN-SUFFIX,wps.com,🎯 全球直连
+
   # GitHub
   - RULE-SET,github_rules,🐙 GitHub
 
@@ -401,7 +418,8 @@ rules:
   - RULE-SET,china_domain,🎯 全球直连
   - RULE-SET,china_company_ip,🎯 全球直连,no-resolve
   - GEOIP,LAN,🎯 全球直连,no-resolve
-  - GEOIP,CN,🎯 全球直连,no-resolve
+  # 遗漏域名必要时先解析真实 IP，再判断是否属于国内。
+  - GEOIP,CN,🎯 全球直连
 
   # 兜底
   - MATCH,🐟 漏网之鱼

@@ -7,7 +7,7 @@
 | **Clash Verge Rev**（桌面） | [`clash-verge/config.yaml`](clash-verge/config.yaml) | 全局 Merge 配置 |
 | **Stash**（iOS） | [`stash/override.stoverride`](stash/override.stoverride) | 覆写（Override） |
 
-两份配置的 **rules 与 rule-providers 保持一致**，代理组按客户端语法适配。订阅链接（含密钥）只留在各客户端本地，不进本仓库。
+两份配置共享域名规则与 rule-providers，代理组按客户端语法适配。当前仅国内 GeoIP 解析策略有意不同：桌面允许真实解析补漏，手机分步验证期间保留 `no-resolve`。订阅链接（含密钥）只留在各客户端本地，不进本仓库。
 
 ## 分组一览
 
@@ -23,6 +23,10 @@ GitHub 规则来自 [blackmatrix7](https://github.com/blackmatrix7/ios_rule_scri
 AI 域名直接维护在两份配置中，不再引入将整段 ASN、`stripe.com`、`sentry.io` 等通用域名归入 AI 的旧规则集。`chatgpt.site` 及所有子域名（含 `index-investing-daily-lcy.chaselee9999.chatgpt.site`）均走 `🤖 AI服务`。新增服务域名时需同步两端并更新覆写。
 
 匹配顺序：局域网 → 明确 AI 域名 → 广告 → GitHub/微软/苹果/Telegram/影音 → 国内直连 → 兜底。AI 域名优先于通用 GitHub、流媒体与广告规则；非 AI 的第三方登录、支付、统计域名仍按后续规则处理。GitHub 的网页登录和 `api.github.com` 仍走 GitHub 组，不按 URL 路径区分 Copilot 登录接口。
+
+2026-10-30 补齐 DeepSeek、豆包（含输入法）、Kimi/Moonshot、智谱、火山引擎、语雀、Gitee、牛客、小红书短链、B站 bilicdn1 与 WPS 域名。国内 AI 明确直连，其他补充服务在广告过滤之后、通用代理规则之前匹配。桌面最后的 `GEOIP,CN` 允许必要时先解析真实 IP；手机先保留 `no-resolve`，待 Wi-Fi、蜂窝和切网实测后再评估。
+
+发布后在 Stash 更新原远程覆写并重新应用，配置描述应显示 2026-10-30；仅更新订阅或规则集不会更新这些内联规则。若使用 jsDelivr 尚未取得新版，可换用下方 GitHub Raw 链接。确认 `🎯 全球直连` 为 DIRECT；`🐟 漏网之鱼` 默认选节点选择，已有选择可能被保留。
 
 ## 使用方法
 
