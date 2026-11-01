@@ -49,7 +49,9 @@ check(stash_dns['nameserver'] == %w[https://dns.alidns.com/dns-query https://doh
 check(stash_dns['proxy-server-nameserver'] == stash_dns['nameserver'], 'Stash 节点解析必须使用独立国内 DNS')
 check(stash_dns['nameserver-policy'] == {'+.lan' => 'system', '+.local' => 'system', '+.home.arpa' => 'system'}, 'Stash 未清除旧 DNS policy 或丢失局域网解析')
 check(stash_dns['fallback'] == [], 'Stash 不应保留订阅 fallback')
-check(stash_text.match?(/^dns:\s*$/) && !stash_dns.key?('fake-ip-filter') && !stash_dns.key?('fake-ip-range'), 'Stash 应按键合并 DNS 并保留订阅 Fake-IP 配置')
+check(stash_text.match?(/^dns:\s*$/) && !stash_dns.key?('fake-ip-range'), 'Stash 应按键合并 DNS 并保留订阅 Fake-IP 网段')
+check(stash_dns['fake-ip-filter'] == ['rule-set:china_domain'] && configs[0]['rule-providers'].key?('china_domain'), 'Stash 国内真实 IP 过滤必须引用现有规则源')
+check(stash_text.match?(/^  fake-ip-filter: #!append$/), 'Stash Fake-IP 过滤必须追加，保留订阅过滤项')
 %w[default-nameserver nameserver proxy-server-nameserver nameserver-policy fallback].each do |key|
   check(stash_text.match?(/^  #{Regexp.escape(key)}:.*#!replace\s*$/), "Stash #{key} 缺少 replace，旧 DNS 会继续生效")
 end
@@ -142,6 +144,16 @@ Dir.mktmpdir('clash-verify-') do |dir|
     end
   end
   payloads = jobs.map(&:value).to_h
+  real_ip_hosts = %w[acs.m.taobao.com m5.amap.com cgi.connect.qq.com
+    gnss-eph.oss-cn-hangzhou.aliyuncs.com v5-bd-daily-music.douyinstatic.com]
+  domestic_filter = payloads.fetch('china_domain')
+  real_ip_hosts.each do |host|
+    check(domestic_filter.any? { |r| domain_match?(r, host) }, "Stash 国内真实 IP 过滤未覆盖 #{host}")
+  end
+  ai_hosts.each do |host|
+    check(domestic_filter.none? { |r| domain_match?(r, host) }, "Stash 国内真实 IP 过滤误覆盖 AI #{host}")
+  end
+  puts "PASS: Stash 真实 IP 过滤覆盖 #{real_ip_hosts.size} 个国内样例，未覆盖 #{ai_hosts.size} 个 AI 样例"
   expected = ai_hosts.to_h { |host| [host, AI] }.merge(
     'github.com' => '🐙 GitHub', 'raw.githubusercontent.com' => '🐙 GitHub',
     'www.youtube.com' => '📹 YouTube', 'www.netflix.com' => '🎬 流媒体',
