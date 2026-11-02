@@ -29,11 +29,8 @@ def domain_match?(rule, host)
 end
 
 configs = FILES.map { |file| YAML.load_file(File.join(ROOT, file)) }
-domestic_geoip = 'GEOIP,CN,🎯 全球直连'
-check(configs[0]['rules'].include?("#{domestic_geoip},no-resolve"), '手机分步验证期间必须保留 GeoIP no-resolve')
-check(configs[1]['rules'].include?(domestic_geoip), '桌面国内 GeoIP 必须允许解析补漏')
-normalized_mobile_rules = configs[0].fetch('rules').map { |r| r == "#{domestic_geoip},no-resolve" ? domestic_geoip : r }
-check(normalized_mobile_rules == configs[1].fetch('rules'), '除国内 GeoIP 解析策略外，两端规则必须一致')
+domestic_geoip = 'GEOIP,CN,DIRECT'
+check(configs[0].fetch('rules') == configs[1].fetch('rules'), '两端公共规则必须一致')
 check(configs[0]['rule-providers'] == configs[1]['rule-providers'], '两端规则源不一致')
 check(File.read(File.join(ROOT, FILES[0])).match?(/^rules: #!replace$/), 'Stash rules 缺少 replace')
 check(File.read(File.join(ROOT, FILES[0])).match?(/^proxy-groups: #!replace$/), 'Stash groups 缺少 replace')
@@ -76,6 +73,15 @@ configs.each do |config|
 end
 
 configs.each do |config|
+  route_rules = config.fetch('rules')
+  check(route_rules.count(domestic_geoip) == 1, '国内 GeoIP 必须允许解析并固定 DIRECT')
+  geoip_index = route_rules.index(domestic_geoip)
+  %w[github_rules microsoft apple telegram youtube netflix proxy_media gfw_list].each do |name|
+    proxy_index = route_rules.index { |r| r.start_with?("RULE-SET,#{name},") }
+    check(geoip_index < proxy_index, "国内 IP 判断必须先于通用代理规则 #{name}")
+  end
+  direct_group = config.fetch('proxy-groups').find { |g| g['name'] == '🎯 全球直连' }
+  check(direct_group.fetch('proxies') == ['DIRECT'], '国内直连组不可再选代理节点')
   groups = config.fetch('proxy-groups')
   names = groups.map { |group| group.fetch('name') }
   check(names.uniq == names, '分组名称重复')

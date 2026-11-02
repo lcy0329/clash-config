@@ -1,5 +1,14 @@
 # 优化依据
 
+## 2026-11-02 国内 IP 自动判断
+- 用户要求按IP国家通用识别国内请求。现有手机`GEOIP,CN`带no-resolve，且三端国内域名/IP段排在GitHub/微软/影音/GFW等规则之后；已匹配的代理规则不会再进入末尾国内判断。
+- [Stash规则类型](https://stash.wiki/rules/rule-types)明确GEOIP匹配MaxMind国家代码，no-resolve会避免触发DNS；[DNS说明](https://stash.wiki/features/dns-server)说明Fake-IP需要按路由规则决定是否真实解析。此前保留no-resolve是DNS异常期间的分步选择，现在按用户要求结束该限制。
+- 实施范围：国内域名、公司IP和GeoIP前移到通用代理规则之前；国内GeoIP允许真实解析并使用固定DIRECT；全球直连组只保留DIRECT，避免旧手选节点再次改变国内分流。明确AI、广告及路由设备专属出口保留优先级。
+- 边界：国家判断依赖DNS可用性及GeoIP数据，不能承诺数据库无误差、所有国内App都只使用国内IP，或替代家庭路由独立的代理规则；没有确认此前App故障的唯一根因。
+- 隔离兼容内核实测：使用已安装Mihomo、MMDB副本、全部15源的文件副本、仅回环监听的可控DNS与合成节点。旧手机规则下，未收录国内域名/Fake-IP请求命中MATCH、通用GFW域名即使指定国内A记录也先命中代理，未发起真实A查询。新规则下三者均触发本地A查询并命中GeoIP(CN)/DIRECT。
+- 新规则9项原生路由决策通过：未知国内/境外域名、通用GFW域名分别解析国内/境外IP、明确AI、国内/境外裸IP、广告域名、Fake-IP还原后国内判断。AI保持原优先级（测试为REJECT保护项），广告保持REJECT；只验证决策，不把测试端口连接成功或Mihomo当作iPhone网络验收。核心与DNS均已退出，线上客户端未热加载。
+- 临时验证脚本曾遇到样例源没有精确DOMAIN、JSON代理组Unicode转义、规则源需原生payload行以及日志格式差异；修正后等待15源数量全部正确再测试，先前未完整加载规则源的结果全部作废。
+
 ## 2026-11-02 天鹅到家打不开
 - 用户反馈11月1日手机开启Stash时天鹅到家打不开，关闭Stash后能打开，说明需优先检查Stash路径，但不能仅据此区分路由、DNS、拦截或客户端检测。
 - 官方当前[用户协议](https://hd.daojia.com/agreements/user/)及[官网](https://www.daojia.com/)使用`daojia.com`，官网资源和现行协议分别位于`static.daojia.com`等子域；主域归属有官方依据，不依据第三方广义58列表放行。

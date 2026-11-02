@@ -283,7 +283,6 @@ proxy-groups:
     type: select
     proxies:
       - DIRECT
-      - 🚀 节点选择
 
   - name: 🐟 漏网之鱼
     type: select
@@ -387,6 +386,12 @@ rules:
   - DOMAIN-SUFFIX,wps.com,🎯 全球直连
   - DOMAIN-SUFFIX,daojia.com,🎯 全球直连
 
+  # 国内域名/IP优先于通用代理；遗漏域名解析真实IP后判断国家。
+  - RULE-SET,china_domain,🎯 全球直连
+  - RULE-SET,china_company_ip,🎯 全球直连,no-resolve
+  - GEOIP,LAN,🎯 全球直连,no-resolve
+  - GEOIP,CN,DIRECT
+
   # GitHub
   - RULE-SET,github_rules,🐙 GitHub
 
@@ -414,13 +419,6 @@ rules:
 
   # GFW 代理列表
   - RULE-SET,gfw_list,🚀 节点选择
-
-  # 国内域名/IP 直连
-  - RULE-SET,china_domain,🎯 全球直连
-  - RULE-SET,china_company_ip,🎯 全球直连,no-resolve
-  - GEOIP,LAN,🎯 全球直连,no-resolve
-  # 遗漏域名必要时先解析真实 IP，再判断是否属于国内。
-  - GEOIP,CN,🎯 全球直连
 
   # 兜底
   - MATCH,🐟 漏网之鱼

@@ -7,7 +7,7 @@
 | **Clash Verge Rev**（桌面） | [`clash-verge/config.yaml`](clash-verge/config.yaml) | 全局 Merge 配置 |
 | **Stash**（iOS） | [`stash/override.stoverride`](stash/override.stoverride) | 覆写（Override） |
 
-两份配置共享域名规则与 rule-providers，代理组按客户端语法适配。当前仅国内 GeoIP 解析策略有意不同：桌面允许真实解析补漏，手机分步验证期间保留 `no-resolve`。订阅链接（含密钥）只留在各客户端本地，不进本仓库。
+两份配置共享域名规则与 rule-providers，代理组按客户端语法适配。国内域名优先直连；未命中域名规则的请求允许解析真实IP，按GeoIP判断国内后固定直连，再进入通用代理规则。订阅链接（含密钥）只留在各客户端本地，不进本仓库。
 
 ## 分组一览
 
@@ -22,13 +22,15 @@ GitHub 规则来自 [blackmatrix7](https://github.com/blackmatrix7/ios_rule_scri
 
 AI 域名直接维护在两份配置中，不再引入将整段 ASN、`stripe.com`、`sentry.io` 等通用域名归入 AI 的旧规则集。`chatgpt.site` 及所有子域名（含 `index-investing-daily-lcy.chaselee9999.chatgpt.site`）均走 `🤖 AI服务`。新增服务域名时需同步两端并更新覆写。
 
-匹配顺序：局域网 → 明确 AI 域名 → 广告 → GitHub/微软/苹果/Telegram/影音 → 国内直连 → 兜底。AI 域名优先于通用 GitHub、流媒体与广告规则；非 AI 的第三方登录、支付、统计域名仍按后续规则处理。GitHub 的网页登录和 `api.github.com` 仍走 GitHub 组，不按 URL 路径区分 Copilot 登录接口。
+匹配顺序：局域网 → 明确国内 AI / 明确海外 AI → 广告 → 国内补充域名与国内域名/IP/国家判断 → GitHub/微软/苹果/Telegram/影音/GFW → 兜底。明确海外AI仍保留专用出口；通用代理规则必须排在国内IP判断之后。
 
-2026-10-30 补齐 DeepSeek、豆包（含输入法）、Kimi/Moonshot、智谱、火山引擎、语雀、Gitee、牛客、小红书短链、B站 bilicdn1 与 WPS 域名。国内 AI 明确直连，其他补充服务在广告过滤之后、通用代理规则之前匹配。桌面最后的 `GEOIP,CN` 允许必要时先解析真实 IP；手机先保留 `no-resolve`，待 Wi-Fi、蜂窝和切网实测后再评估。
+2026-10-30 补齐 DeepSeek、豆包（含输入法）、Kimi/Moonshot、智谱、火山引擎、语雀、Gitee、牛客、小红书短链、B站 bilicdn1 与 WPS 域名。国内 AI 明确直连，其他补充服务在广告过滤之后、通用代理规则之前匹配。桌面最后的 `GEOIP,CN` 允许必要时先解析真实 IP；当时手机保留 `no-resolve`；2026-11-02已取消该限制并前移国内判断。
+
+2026-11-02 国内IP统一判断：`GEOIP,CN,DIRECT`不带`no-resolve`，与国内域名/公司IP规则一起位于通用代理规则之前。未知域名无需逐个添加：解析结果被GeoIP识别为CN后直接出站，其余再按代理规则处理；`🎯 全球直连`仅保留DIRECT，避免手选代理覆盖国内直连。明确AI出口、广告和路由设备专属出口仍有优先级。未知域名可能多一次本地DNS查询，依赖解析服务与GeoIP数据有效；不保证每个国内App只使用国内IP，也不能代替家庭路由规则或手机实际验收。
 
 2026-11-02 补齐天鹅到家官方域名 `daojia.com` 及其子域，进入 `🎯 全球直连`；应用后确认处于规则模式、该组选择 DIRECT。此前15个规则源没有覆盖该域名，手机缺少真实IP供国内规则判断时可能进入代理兜底。此次只补充分流，App能否恢复仍需手机更新覆写并重新打开后验证。
 
-发布后在 Stash 更新原远程覆写并重新应用，配置描述应显示 2026-11-02 11:25:03；仅更新订阅或规则集不会更新这些内联规则。若使用 jsDelivr 尚未取得新版，可换用下方 GitHub Raw 链接。确认 `🎯 全球直连` 为 DIRECT；`🐟 漏网之鱼` 默认选节点选择，已有选择可能被保留。
+发布后在 Stash 更新原远程覆写并重新应用，配置描述应显示 2026-11-02 11:57:01；仅更新订阅或规则集不会更新这些内联规则。若使用 jsDelivr 尚未取得新版，可换用下方 GitHub Raw 链接。确认 `🎯 全球直连` 为 DIRECT；`🐟 漏网之鱼` 默认选节点选择，已有选择可能被保留。
 
 ## 使用方法
 
