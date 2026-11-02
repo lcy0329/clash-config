@@ -60,13 +60,15 @@ end
 domestic_hosts = %w[deepseek.com api.deepseek.com kimi.moonshot.cn www.kimi.com
   api.moonshot.ai doubao.com ime.doubao.com open.bigmodel.cn].to_h { |h| [h, 'DIRECT'] }.merge(
   %w[www.volcengine.com www.yuque.com gitee.com www.nowcoder.com xhslink.com
-     video.bilicdn1.com www.wps.com].to_h { |h| [h, '🎯 全球直连'] })
+     video.bilicdn1.com www.wps.com daojia.com jiazheng.daojia.com
+     jz-service-cdn.daojia.com].to_h { |h| [h, '🎯 全球直连'] })
 configs.each do |config|
   domestic_hosts.each do |host, target|
     rule = config['rules'].find { |r| domain_match?(r, host) }
     check(rule && rule.split(',')[2] == target, "国内域名补漏失败 #{host}")
   end
-  %w[notdeepseek.com deepseek.com.example.org notgitee.com gitee.com.example.org].each do |host|
+  %w[notdeepseek.com deepseek.com.example.org notgitee.com gitee.com.example.org
+     notdaojia.com daojia.com.example.org].each do |host|
     check(!config['rules'].any? { |r| domain_match?(r, host) }, "国内补漏误匹配相似域名 #{host}")
   end
   fallback = config['proxy-groups'].find { |g| g['name'] == '🐟 漏网之鱼' }
