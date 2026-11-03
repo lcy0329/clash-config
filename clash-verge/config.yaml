@@ -3,8 +3,9 @@
 # 替代 subconverter + ACL4SSR_Online_Full，订阅直接填原始链接即可
 # 多订阅、多设备通用，规则每日自动更新
 #
-# 用法：Clash Verge Rev → 订阅右键「编辑文件」无关，
-#       到「设置 → Merge / 全局扩展配置」粘贴，或在订阅的 Merge 字段引用本文件。
+# 唯一维护源：本文件。Clash 的 profiles/Merge.yaml 通过软链接读取它。
+# 修改或 git pull 后，在「订阅」页点击「重新激活订阅」。
+# 初次建立链接及一致性检查见 README；不要另行维护客户端副本。
 # =============================================================================
 
 profile:
@@ -152,6 +153,7 @@ proxy-groups:
     type: select
     include-all-providers: true
     include-all-proxies: true
+    exclude-filter: '(?i)(当前流量|剩余流量|到期时间|套餐到期|重置剩余|Traffic|Expire)'
     proxies:
       - ♻️ 自动选择
       - 🇭🇰 香港自动
@@ -165,6 +167,7 @@ proxy-groups:
     type: url-test
     include-all-providers: true
     include-all-proxies: true
+    exclude-filter: '(?i)(当前流量|剩余流量|到期时间|套餐到期|重置剩余|Traffic|Expire)'
     url: https://www.gstatic.com/generate_204
     interval: 300
     tolerance: 50
@@ -310,6 +313,7 @@ rules:
   - DOMAIN-SUFFIX,openai.com,🤖 AI服务
   - DOMAIN-SUFFIX,chatgpt.com,🤖 AI服务
   - DOMAIN-SUFFIX,chatgpt.site,🤖 AI服务
+  - DOMAIN-SUFFIX,chatgpt-team.site,🤖 AI服务
   - DOMAIN-SUFFIX,sora.com,🤖 AI服务
   - DOMAIN-SUFFIX,oaistatic.com,🤖 AI服务
   - DOMAIN-SUFFIX,oaiusercontent.com,🤖 AI服务

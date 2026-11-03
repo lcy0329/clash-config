@@ -20,7 +20,7 @@
 
 GitHub 规则来自 [blackmatrix7](https://github.com/blackmatrix7/ios_rule_script)，基础分流来自 [ACL4SSR](https://github.com/ACL4SSR/ACL4SSR)。ACL4SSR 使用 GitHub Raw 地址，规避本次检查遇到的 jsDelivr 地区限制；15 个远程规则集每 24 小时尝试更新。流媒体使用上游 `Clash/Providers/ProxyMedia.yaml`，避免原 `.list` 中的 `URL-REGEX` 在 Mihomo 中不兼容。
 
-AI 域名直接维护在两份配置中，不再引入将整段 ASN、`stripe.com`、`sentry.io` 等通用域名归入 AI 的旧规则集。`chatgpt.site` 及所有子域名（含 `index-investing-daily-lcy.chaselee9999.chatgpt.site`）均走 `🤖 AI服务`。新增服务域名时需同步两端并更新覆写。
+AI 域名直接维护在两份配置中，不再引入将整段 ASN、`stripe.com`、`sentry.io` 等通用域名归入 AI 的旧规则集。`chatgpt.site` 及所有子域名（含 `index-investing-daily-lcy.chaselee9999.chatgpt.site`）、`chatgpt-team.site`（含 Git 工具入口）均走 `🤖 AI服务`。新增服务域名时需同步两端并更新覆写。
 
 匹配顺序：局域网 → 明确国内 AI / 明确海外 AI → 广告 → 国内补充域名与国内域名/IP/国家判断 → GitHub/微软/苹果/Telegram/影音/GFW → 兜底。明确海外AI仍保留专用出口；通用代理规则必须排在国内IP判断之后。
 
@@ -71,7 +71,25 @@ AI 域名直接维护在两份配置中，不再引入将整段 ASN、`stripe.co
 
 ### Clash Verge Rev（桌面）
 
-把 [`clash-verge/config.yaml`](clash-verge/config.yaml) 内容粘到 **设置 → Merge / 全局扩展配置**，或在订阅的 Merge 字段引用本文件。
+**桌面只维护本仓库的两份文件：[`clash-verge/config.yaml`](clash-verge/config.yaml) 管分流、[`clash-verge/script.js`](clash-verge/script.js) 管 DNS。** 本机的全局 `profiles/Merge.yaml` 和 `profiles/Script.js` 分别软链接到它们。订阅只提供节点及保留的 DNS 兼容字段，换订阅仍共享全局规则和 DNS 策略。
+
+后续流程：编辑仓库文件或 `git pull` → Clash **订阅 → 重新激活订阅** → `ruby scripts/verify.rb --installed`。软链接更新文件内容，重新激活才会让内核应用改动；不要把编辑器中的客户端副本另存为独立文件。移动仓库后需重建链接。
+
+其他 Mac 初次设置时，在仓库根目录执行以下命令，先备份现有 Merge/Script，再建立链接，然后重新激活订阅：
+
+```sh
+clash_dir="$HOME/Library/Application Support/io.github.clash-verge-rev.clash-verge-rev"
+cp -p "$clash_dir/profiles/Merge.yaml" "$clash_dir/profiles/Merge.yaml.bak.$(date +%Y%m%d-%H%M%S)"
+cp -p "$clash_dir/profiles/Script.js" "$clash_dir/profiles/Script.js.bak.$(date +%Y%m%d-%H%M%S)"
+ln -sfn "$PWD/clash-verge/config.yaml" "$clash_dir/profiles/Merge.yaml"
+ln -sfn "$PWD/clash-verge/script.js" "$clash_dir/profiles/Script.js"
+```
+
+桌面主组与全局自动组排除订阅中的“当前流量／到期时间”等提示项，避免将提示项当作自动选择候选。
+
+全局 Script 在 Merge 之后运行：国内域名保留原来的国内解析；明确归入 `🤖 AI服务` 的 `DOMAIN` / `DOMAIN-SUFFIX` 规则自动生成 DNS 策略，经所选 AI 节点访问 Cloudflare/Google DoH。域名只维护在 Merge 中，DNS 不再复制名单；AI 组选 REJECT 或节点失效时，该类解析也会失败。脚本替换订阅的 DNS 上游和解析策略，同时保留传入的 DNS 模式、Fake-IP 范围及过滤等兼容字段。旧脚本会丢弃模式；本机修正后恢复为 Clash 传入的 `fake-ip`，普通 `dig` 会得到 `198.18.*` 映射，真实上游答案通过内核 `/dns/query` 核实。
+
+2026-11-03 实测本机 DNS 对 `api.openai.com` 返回 `118.184.26.113`，而经代理查询 Cloudflare/Google 均返回 `162.159.140.245` / `172.66.0.243`。原来的 `fallback-filter.geoip-code: CN` 会接受中国地址，不能识别这类错误答案，因此对明确 AI 域名直接使用境外 DoH。此修改针对 DNS 解析；长会话请求过大导致的重连需另行处理。语法依据见 [Mihomo DNS 文档](https://wiki.metacubex.one/config/dns/)。
 
 ## 注意事项
 
@@ -84,10 +102,12 @@ AI 域名直接维护在两份配置中，不再引入将整段 ASN、`stripe.co
 
 ## 验证
 
-只需系统 Ruby 和 curl，不需要安装依赖：
+基础校验使用系统 Ruby 和 curl；DNS 脚本及本机一致性校验另外需要 Node.js，不需要第三方包：
 
 ```sh
 ruby scripts/verify.rb          # YAML、引用、两端一致性、AI 域名、Stash DNS/IPv6
+ruby scripts/verify.rb --installed # 本机 Merge/Script 链接、生成规则/DNS 与运行规则；需 Node.js
+node scripts/verify-dns.js      # 全局 DNS 脚本行为；需 Node.js，无第三方依赖
 ruby scripts/verify.rb --online # 另检查所有远程源及完整域名规则顺序
 ```
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-# ruby scripts/verify.rb [--online]
+# ruby scripts/verify.rb [--online] [--installed]
 # Optional native checks: MIHOMO_BIN=/path/to/mihomo MIHOMO_MMDB=/path/to/Country.mmdb
 require 'yaml'
 require 'open3'
@@ -29,6 +29,16 @@ def domain_match?(rule, host)
 end
 
 configs = FILES.map { |file| YAML.load_file(File.join(ROOT, file)) }
+['🚀 节点选择', '♻️ 自动选择'].each do |name|
+  group = configs[1].fetch('proxy-groups').find { |g| g['name'] == name }
+  excluded = Regexp.new(group.fetch('exclude-filter'))
+  ['当前流量：12.52G / 150.00G', '到期时间：2027-01-31'].each do |node|
+    check(excluded.match?(node), "桌面 #{name} 仍会选择订阅提示项 #{node}")
+  end
+  ['🇯🇵 日本 06', '🇭🇰 香港 10', 'US01', 'Singapore 01'].each do |node|
+    check(!excluded.match?(node), "桌面 #{name} 误排除实际节点 #{node}")
+  end
+end
 domestic_geoip = 'GEOIP,CN,DIRECT'
 check(configs[0].fetch('rules') == configs[1].fetch('rules'), '两端公共规则必须一致')
 check(configs[0]['rule-providers'] == configs[1]['rule-providers'], '两端规则源不一致')
@@ -52,7 +62,6 @@ check(stash_text.match?(/^  fake-ip-filter: #!append$/), 'Stash Fake-IP 过滤�
 %w[default-nameserver nameserver proxy-server-nameserver nameserver-policy fallback].each do |key|
   check(stash_text.match?(/^  #{Regexp.escape(key)}:.*#!replace\s*$/), "Stash #{key} 缺少 replace，旧 DNS 会继续生效")
 end
-
 
 domestic_hosts = %w[deepseek.com api.deepseek.com kimi.moonshot.cn www.kimi.com
   api.moonshot.ai doubao.com ime.doubao.com open.bigmodel.cn].to_h { |h| [h, 'DIRECT'] }.merge(
@@ -116,7 +125,7 @@ configs.each do |config|
 end
 
 rules = configs[0].fetch('rules')
-ai_hosts = %w[index-investing-daily-lcy.chaselee9999.chatgpt.site chatgpt.com api.openai.com
+ai_hosts = %w[index-investing-daily-lcy.chaselee9999.chatgpt.site git.chatgpt-team.site chatgpt.com api.openai.com
   auth.openai.com cdn.oaistatic.com files.oaiusercontent.com chatgpt.livekit.cloud sora.com
   claude.ai api.anthropic.com claudeusercontent.com perplexity.ai
   gemini.google.com aistudio.google.com notebooklm.google.com notebooklm.google generativelanguage.googleapis.com
@@ -128,11 +137,41 @@ ai_hosts.each do |host|
   rule = rules.find { |r| domain_match?(r, host) }
   check(rule && rule.split(',')[2] == AI, "AI 域名漏分流 #{host}")
 end
-%w[notchatgpt.site chatgpt.site.example.com stripe.com sentry.io example.auth0.com
+%w[notchatgpt.site chatgpt.site.example.com notchatgpt-team.site chatgpt-team.site.example.com stripe.com sentry.io example.auth0.com
    apis.google.com maps.googleapis.com www.bing.com github.com].each do |host|
   check(!rules.any? { |r| r.split(',')[2] == AI && domain_match?(r, host) }, "无关域名被归入 AI #{host}")
 end
 puts "PASS: 两端 YAML、规则引用、节点筛选及 #{ai_hosts.size} 个 AI 域名；Stash DNS/IPv6"
+if ARGV.include?('--installed')
+  desktop = configs[1]
+  client = File.expand_path('~/Library/Application Support/io.github.clash-verge-rev.clash-verge-rev')
+  merge_path = File.join(client, 'profiles/Merge.yaml')
+  source_path = File.join(ROOT, 'clash-verge/config.yaml')
+  check(File.symlink?(merge_path) && File.realpath(merge_path) == File.realpath(source_path), 'Clash 全局 Merge 必须链接到本仓库，不能独立维护副本')
+  script_path = File.join(client, 'profiles/Script.js')
+  check(File.symlink?(script_path) && File.realpath(script_path) == File.realpath(File.join(ROOT, 'clash-verge/script.js')), 'Clash 全局 Script 必须链接到本仓库')
+  generated = YAML.load_file(File.join(client, 'clash-verge.yaml'))
+  check(desktop.all? { |key, value| generated[key] == value }, 'Clash 生成配置与仓库不一致，请在订阅页重新激活订阅')
+  dns_check = "const fs=require('fs'),vm=require('vm'),c={};vm.runInNewContext(fs.readFileSync(process.argv[1],'utf8'),c);process.stdout.write(JSON.stringify(c.main(JSON.parse(fs.readFileSync(0,'utf8'))).dns));"
+  expected_dns, error, status = Open3.capture3('node', '-e', dns_check, script_path, stdin_data: JSON.generate(generated))
+  check(status.success?, "全局 DNS 脚本执行失败: #{error.strip}")
+  check(JSON.parse(expected_dns) == generated['dns'], 'Clash 生成 DNS 与全局脚本不一致，请重新激活订阅')
+  controller = URI("http://#{generated.fetch('external-controller')}")
+  http = Net::HTTP.new('127.0.0.1', controller.port, nil)
+  http.open_timeout = http.read_timeout = 3
+  request = Net::HTTP::Get.new('/rules')
+  request['Authorization'] = "Bearer #{generated.fetch('secret')}"
+  response = http.request(request)
+  check(response.code == '200', '无法读取本机 Clash 运行规则')
+  actual = JSON.parse(response.body).fetch('rules').map { |rule| [rule['type'].downcase, rule['payload'], rule['proxy']] }
+  expected = desktop.fetch('rules').map do |rule|
+    type, value, target = rule.split(',')
+    value = value.downcase if type == 'GEOIP'
+    type == 'MATCH' ? ['match', '', value] : [type.delete('-').downcase, value, target]
+  end
+  check(actual == expected, 'Clash 内核运行规则与仓库不一致，请在订阅页重新激活订阅')
+  puts 'PASS: 全局 Merge/Script 链接、生成规则/DNS 及内核运行规则与仓库一致'
+end
 exit unless ARGV.include?('--online')
 
 Dir.mktmpdir('clash-verify-') do |dir|
@@ -189,7 +228,7 @@ Dir.mktmpdir('clash-verify-') do |dir|
     config['log-level'] = 'warning'
     config['proxy-groups'].each { |g| g['interval'] = 0 }
     config['proxy-groups'].select { |g| g['type'] == 'url-test' }.each { |g| g['url'] = 'http://127.0.0.1:9/' }
-    [['US01', 'JP01', 'SG01', 'HK01', 'Australia', '香港 Plus'], ['HK01'], []].each do |node_names|
+    [['US01', 'JP01', 'SG01', 'HK01', 'Australia', '香港 Plus', '当前流量：15G / 150G', '到期时间：2027-01-31'], ['HK01'], []].each do |node_names|
       config['proxies'] = node_names.map { |name| {'name' => name, 'type' => 'http', 'server' => '127.0.0.1', 'port' => 9} }
       socket = TCPServer.new('127.0.0.1', 0)
       port = socket.addr[1]
@@ -213,6 +252,9 @@ Dir.mktmpdir('clash-verify-') do |dir|
           end
         end
         ai = proxies.fetch(AI)
+        ['🚀 节点选择', '♻️ 自动选择'].each do |name|
+          check(proxies.fetch(name).fetch('all').none? { |node| node.match?(/当前流量|到期时间/) }, "Mihomo #{name} 未排除订阅提示项")
+        end
         check(ai['now'] == 'REJECT', 'Mihomo AI 默认选择未保护')
         wanted = ['REJECT'] + node_names.select { |name| %w[US01 JP01 SG01].include?(name) }
         check(ai.fetch('all').sort == wanted.sort, "Mihomo AI 成员不符: #{ai['all']}")

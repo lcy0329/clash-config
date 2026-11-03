@@ -339,6 +339,7 @@ rules: #!replace
   - DOMAIN-SUFFIX,openai.com,🤖 AI服务
   - DOMAIN-SUFFIX,chatgpt.com,🤖 AI服务
   - DOMAIN-SUFFIX,chatgpt.site,🤖 AI服务
+  - DOMAIN-SUFFIX,chatgpt-team.site,🤖 AI服务
   - DOMAIN-SUFFIX,sora.com,🤖 AI服务
   - DOMAIN-SUFFIX,oaistatic.com,🤖 AI服务
   - DOMAIN-SUFFIX,oaiusercontent.com,🤖 AI服务
