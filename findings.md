@@ -1,5 +1,11 @@
 # 优化依据
 
+## 2026-11-03 Stash 日志增强
+- 用户希望手机日志更完整。[官方配置样例](https://stash.wiki/configuration/example-config)提供log-level的silent/info/warning/error/debug取值；主覆写此前未显式设置，不能仅凭旧日志中有INFO启动记录判断运行时实际日志等级。
+- 采用主覆写info与独立临时debug覆写，后者仅含展示字段和log-level；依据[覆写文档](https://stash.wiki/configuration/override)，放在主覆写之后应用可覆盖标量级别，关闭并重新应用恢复info。用户版本3.6.5，不使用标为3.7 Beta的参数表单。
+- [HTTP API文档](https://stash.wiki/features/http-api)区分核心日志、活动连接（含命中规则/代理链）及DNS缓存（应答服务器/耗时）；提高日志等级不能保证导出的每行都有这些字段，连接详情与网络/DNS诊断仍需配合。没有开启外部控制、MitM、请求正文采集或定时上传。
+- 工作区已有另一次修改的chatgpt-team.site域名及桌面节点过滤，本轮保留，不纳入日志提交；发布对比以HEAD中的手机覆写为准，不能拿包含其他未提交变更的工作副本与Raw逐字比较。
+
 ## 2026-11-02 国内 IP 自动判断
 - 用户要求按IP国家通用识别国内请求。现有手机`GEOIP,CN`带no-resolve，且三端国内域名/IP段排在GitHub/微软/影音/GFW等规则之后；已匹配的代理规则不会再进入末尾国内判断。
 - [Stash规则类型](https://stash.wiki/rules/rule-types)明确GEOIP匹配MaxMind国家代码，no-resolve会避免触发DNS；[DNS说明](https://stash.wiki/features/dns-server)说明Fake-IP需要按路由规则决定是否真实解析。此前保留no-resolve是DNS异常期间的分步选择，现在按用户要求结束该限制。
