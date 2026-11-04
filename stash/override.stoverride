@@ -1,6 +1,6 @@
 # =============================================================================
 # Stash 覆写配置（Override / .stoverride）
-# 配置更新时间：2026-11-03 15:19:19（香港时间 UTC+8）
+# 配置更新时间：2026-11-04 20:12:32（香港时间 UTC+8）
 # 与桌面共享分流；国内域名优先，遗漏域名解析真实 IP 后判断国家
 # 多机场通用：换机场只换订阅，本覆写不动
 #
@@ -13,7 +13,7 @@
 # =============================================================================
 
 name: 节点分组与智能分流
-desc: 更新于 2026-11-03 15:19:19（香港时间）；日常 info 日志；国内 IP 自动识别直连、AI 专用出口与双 DoH
+desc: 更新于 2026-11-04 20:12:32（香港时间）；补齐 Grok 内容与账号域名；国内 IP 自动直连、AI 专用出口与双 DoH
 
 # 日常采集 info；需详细复现时，将 debug.stoverride 放在本覆写之后临时启用。
 log-level: info
@@ -400,6 +400,10 @@ rules: #!replace
   - DOMAIN-SUFFIX,cursorvm.com,🤖 AI服务
   - DOMAIN-SUFFIX,x.ai,🤖 AI服务
   - DOMAIN-SUFFIX,grok.com,🤖 AI服务
+  - DOMAIN-SUFFIX,grokusercontent.com,🤖 AI服务
+  - DOMAIN-SUFFIX,grokipedia.com,🤖 AI服务
+  - DOMAIN-SUFFIX,spacex.ai,🤖 AI服务
+  - DOMAIN-SUFFIX,spacexsi.com,🤖 AI服务
   - DOMAIN-SUFFIX,openrouter.ai,🤖 AI服务
 
   # 广告拦截（明确 AI 域名优先，其他请求正常过滤）

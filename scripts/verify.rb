@@ -105,6 +105,7 @@ configs.each do |config|
     check(config['rule-providers'].key?(value), "未知规则集 #{value}") if type == 'RULE-SET'
     if target == AI
       check(%w[DOMAIN DOMAIN-SUFFIX].include?(type), "AI 规则范围过宽 #{rule}")
+      check(route_rules.index(rule) < geoip_index && route_rules.index(rule) < route_rules.index { |r| r.start_with?("RULE-SET,ban_ad,") }, "AI 规则必须先于广告与国内 IP 判断 #{rule}")
     end
   end
   check(config['rules'].last == 'MATCH,🐟 漏网之鱼', '兜底规则错误')
@@ -132,12 +133,16 @@ ai_hosts = %w[index-investing-daily-lcy.chaselee9999.chatgpt.site git.chatgpt-te
   copilot.microsoft.com copilot.cloud.microsoft api.githubcopilot.com copilot-proxy.githubusercontent.com
   origin-tracker.githubusercontent.com default.exp-tas.com
   cursor.com api2.cursor.sh marketplace.cursorapi.com cursor-cdn.com a.b.cursorvm.com
-  api.x.ai grok.com openrouter.ai]
+  api.x.ai accounts.x.ai auth.x.ai imagine-public.x.ai grok.com assets.grok.com auth.grok.com
+  grokusercontent.com auth.grokusercontent.com grokipedia.com auth.grokipedia.com
+  spacex.ai accounts.spacex.ai spacexsi.com accounts.spacexsi.com openrouter.ai]
 ai_hosts.each do |host|
   rule = rules.find { |r| domain_match?(r, host) }
   check(rule && rule.split(',')[2] == AI, "AI 域名漏分流 #{host}")
 end
-%w[notchatgpt.site chatgpt.site.example.com notchatgpt-team.site chatgpt-team.site.example.com stripe.com sentry.io example.auth0.com
+%w[notgrokusercontent.com grokusercontent.com.example.com notgrokipedia.com grokipedia.com.example.com
+   notspacex.ai spacex.ai.example.com notspacexsi.com spacexsi.com.example.com
+   notchatgpt.site chatgpt.site.example.com notchatgpt-team.site chatgpt-team.site.example.com stripe.com sentry.io example.auth0.com
    apis.google.com maps.googleapis.com www.bing.com github.com].each do |host|
   check(!rules.any? { |r| r.split(',')[2] == AI && domain_match?(r, host) }, "无关域名被归入 AI #{host}")
 end

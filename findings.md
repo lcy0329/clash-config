@@ -1,5 +1,11 @@
 # 优化依据
 
+## 2026-11-04 Grok 关联服务核对
+- 现有 x.ai / grok.com 后缀规则覆盖主站、API、assets 与旧账号子域，优先于广告和 GeoIP。
+- 官方 xAI 清单 https://docs.x.ai/x-subscription/sign-in-domains 列出 spacex.ai、grokusercontent.com、grokipedia.com；Cursor 官方 https://prod.cursor.com/help/troubleshooting/sign-in-domains 另列 spacexsi.com。两份当前文档的账号入口不同，均保留兼容。
+- 将四个明确服务后缀加入 AI 组；不依赖普通 GFW/兜底选项。手机保持既有双 DoH，本轮先实测，未发现故障前不引入全局 DNS 变更。
+- 手机镜像提示 iPhone 使用中；用户明确只需 GitHub 更新，已停止设备操作。
+
 ## 2026-11-03 Stash 日志增强
 - 用户希望手机日志更完整。[官方配置样例](https://stash.wiki/configuration/example-config)提供log-level的silent/info/warning/error/debug取值；主覆写此前未显式设置，不能仅凭旧日志中有INFO启动记录判断运行时实际日志等级。
 - 采用主覆写info与独立临时debug覆写，后者仅含展示字段和log-level；依据[覆写文档](https://stash.wiki/configuration/override)，放在主覆写之后应用可覆盖标量级别，关闭并重新应用恢复info。用户版本3.6.5，不使用标为3.7 Beta的参数表单。

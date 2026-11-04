@@ -374,6 +374,10 @@ rules:
   - DOMAIN-SUFFIX,cursorvm.com,🤖 AI服务
   - DOMAIN-SUFFIX,x.ai,🤖 AI服务
   - DOMAIN-SUFFIX,grok.com,🤖 AI服务
+  - DOMAIN-SUFFIX,grokusercontent.com,🤖 AI服务
+  - DOMAIN-SUFFIX,grokipedia.com,🤖 AI服务
+  - DOMAIN-SUFFIX,spacex.ai,🤖 AI服务
+  - DOMAIN-SUFFIX,spacexsi.com,🤖 AI服务
   - DOMAIN-SUFFIX,openrouter.ai,🤖 AI服务
 
   # 广告拦截（明确 AI 域名优先，其他请求正常过滤）

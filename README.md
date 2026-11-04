@@ -9,6 +9,12 @@
 
 两份配置共享域名规则与 rule-providers，代理组按客户端语法适配。国内域名优先直连；未命中域名规则的请求允许解析真实IP，按GeoIP判断国内后固定直连，再进入通用代理规则。订阅链接（含密钥）只留在各客户端本地，不进本仓库。
 
+## Grok 分流
+
+`grok.com`、`x.ai`、`grokusercontent.com`、`grokipedia.com`、`spacex.ai`、`spacexsi.com` 及其子域统一进入 `🤖 AI服务`，覆盖主站、API、资源和关联账号入口；规则优先于广告与国内 IP 判断。依据 [xAI 官方域名清单](https://docs.x.ai/x-subscription/sign-in-domains)与 [Cursor 官方账号域名说明](https://prod.cursor.com/help/troubleshooting/sign-in-domains)，兼容两份文档列出的不同账号域名。
+
+使用前在 `🤖 AI服务` 选择可用的固定节点。桌面全局 Script 会从这些规则自动生成 AI DNS 策略；手机沿用现有双 DoH。X App 内的 Grok 涉及 X 平台自身域名，沿用 X 的通用分流，不能据此保证所有 X 请求也使用 AI 节点。手机更新远程主覆写并重新应用后才会采用新增规则；规则集的定时刷新不会同步这些内联规则。
+
 ## 分组一览
 
 - 🚀 节点选择（总开关） / ♻️ 自动选择（全局测速）
